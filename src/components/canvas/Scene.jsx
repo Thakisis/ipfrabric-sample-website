@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Preload } from '@react-three/drei'
-
+import { Perf } from 'r3f-perf'
 export default function Scene({ children, ...props }) {
   // Everything defined in here will persist between route changes, only children are swapped
   return (
@@ -9,6 +9,7 @@ export default function Scene({ children, ...props }) {
       <ambientLight intensity={0.75} />
       {children}
       <Preload all />
+      <Perf overClock />
       <OrbitControls />
     </Canvas>
   )
