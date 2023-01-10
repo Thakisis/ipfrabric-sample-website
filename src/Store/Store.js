@@ -17,17 +17,14 @@ export const useStore = create(devtools((set, get) => ({
   SVGGeom: {},
 
   isStore: false,
-  worker: null,
   Actions: {
 
     // start preload of stage 0
     initPreload() {
       if (get().isStore === true)
         return
-      const w = createWorker()
-      set(() => ({
-        worker: w
-      }))
+
+
       const loaders = createLoaders()
       set(() => ({ threeLoaders: loaders }))
 
