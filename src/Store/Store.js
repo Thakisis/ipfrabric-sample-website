@@ -2,8 +2,7 @@ import create from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { initialLoadState, updateLoadModel } from './StateUtils'
 import { preloadModels, createLoaders, createSVGExtrude, createExtrudeMeshes, addSVGtoScene } from './ThreeUtils'
-import { createWorker } from './createWorkers'
-import { SvgModels } from './SvgFiles'
+
 
 export const useStore = create(devtools((set, get) => ({
 

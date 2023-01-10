@@ -1,5 +1,5 @@
-import { Models } from './models'
-import { loadGLTF } from '@/threeutils'
+import { Models } from './Models'
+
 
 //generate InitialState
 function getInitialState() {
