@@ -3,17 +3,10 @@ import dynamic from 'next/dynamic'
 import Header from '@/config'
 import Layout from '@/components/dom/Layout'
 import '@/styles/index.css'
-import { useStore } from '@/Store'
-
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: true })
 
 export default function App({ Component, pageProps = { title: 'index' } }) {
-  const { initPreload } = useStore(state => state.Actions)
   const ref = useRef()
-
-  useEffect(() => {
-    initPreload()
-  }, [initPreload])
   return (
     <>
       <Header title={pageProps.title} />

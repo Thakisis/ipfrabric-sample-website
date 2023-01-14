@@ -40,10 +40,6 @@ export const Materials = () => {
     color: '#ffffff'
   }
 
-  const addLogo = () => {
-    addMeshToScene({ type: "SVG", name: "ipLogo", scene })
-  }
-
   return (
     <>
       <mesh castShadow position={[0, .25, 5]}

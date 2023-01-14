@@ -1,117 +1,120 @@
 import create from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { initialLoadState, updateLoadModel } from './StateUtils'
-import { preloadModels, createLoaders, createSVGExtrude, createExtrudeMeshes, addSVGtoScene } from './ThreeUtils'
+import { mountStoreDevtool } from 'simple-zustand-devtools'
+import { preloadModels, setMatrix, createMeshTransmisionMaterial } from '@/ThreeUtils'
+import { ModelsList } from './ModelsList'
 
-
-export const useStore = create(devtools((set, get) => ({
+export const useStore = create((set, get) => ({
 
   //PreloadState contains objects fileLoadState,stageLoadState, sceneLoadState
-  preloadState: { ...initialLoadState },
-  //loaders for threeje
-  threeLoaders: { gltfLoader: null },
-  // avoid second initPreload during dev
-  sceneModels: { isComplete: false, Models: {} },
-  loadedMaterials: { isComplete: false, Materials: {} },
-  disposables: { materials: false },
-  SVGGeom: {},
-
+  preloadState: { overlayState: 0 },
+  preloadModelState: {},
+  Models: {},
+  threeState: {},
+  customMaterials: {},
   isStore: false,
   Actions: {
 
     // start preload of stage 0
     initPreload() {
-      if (get().isStore === true)
-        return
+      const { onUpdateLoad, onCompleteLoad } = get().Actions
 
+      // call a function for load all models passing two callbacks one for progres on percent of load and other for event load complete
+      const initialPreloadState = preloadModels({ onUpdateLoad, onCompleteLoad })
 
-      const loaders = createLoaders()
-      set(() => ({ threeLoaders: loaders }))
+      //Initialize global preloadstate from data in ModelList
+      set(({ preloadState }) => ({ preloadState: { ...initialPreloadState, filesTotal: 0, filesLoaded: 0, sizeTotal: 0, sizeLoaded: 0, overlayState: 1 } }))
 
-      set(() => ({ isStore: true }))
-      const { preloadStages } = get().Actions
-      preloadStages({ stage: 0 })
-      const svgGeom = createSVGExtrude()
-      set(({ SVGGeom }) => ({ SVGGeom: { ...svgGeom } }))
-      //console.log(svgModel)
-    },
-    // function to preload a certain stage instead of launch preload of all files
-    preloadStages({ stage }) {
-      const threeLoaders = get().threeLoaders
-      const { fileLoadState } = get().preloadState
-      const stagePreloadData = fileLoadState[`stage${stage}`]
-      const { onUpdateLoadModel, onCompleteLoadModel } = get().Actions
+      // create Object with all models where the name of model become the key of each model object
+      const ModelObj = ModelsList.reduce((acum, model) => {
+        return ({ ...acum, [model.modelName]: { ...model, sizeLoaded: 0 } })
+      }, {})
 
-      preloadModels({ stage, stagePreloadData, threeLoaders, onUpdateLoadModel, onCompleteLoadModel })
-
-
+      // initialize preload state of models 
+      set(() => ({ preloadModelState: { ...ModelObj } }))
     },
 
-    // progress on load model to provide data for show preloader components and load net strages
-    onUpdateLoadModel({ modelName, stage, index, sizeLoaded }) {
-      const { preloadStages } = get().Actions
-      const { fileLoadState } = get().preloadState
+    setThree(three) {
 
-      const newPreloadState = updateLoadModel({ stage, index, sizeLoaded, fileLoadState })
-      const isStageComplete = newPreloadState.stageLoadState[`stage${stage}`].isLoaded
-      const isSceneComplete = newPreloadState.sceneLoadState.isComplete
-      set(({ preloadState }) => ({ preloadState: { ...newPreloadState } }))
-      if (isSceneComplete)
-        return
-      if (isStageComplete && stage === 1)
-        return
-      if (!isStageComplete)
-        preloadStages({ stage: stage + 1 })
-      //if (stage === 2 || !StageIsComplete)
-      return
-
-
-
-
+      //Component GetScene is rendered when Scene3D is created and call this function to store scene, gl for precompilation, cameraq ...
+      set(() => ({ threeState: { ...three } }))
     },
+    onUpdateLoad({ modelName, sizeLoaded }) {
 
-    // store evry model to add later to scene
-    onCompleteLoadModel({ modelName, scene, stage, materials }) {
-      const { addMaterial } = get().Actions
-      //set(({ loadedMaterials }) => ({ loadedMaterials: { ...loadedMaterials, Materials: { ...loadedMaterials.Materials, ...materials } } }))
-      set(({ sceneModels }) => ({ sceneModels: { ...sceneModels, Models: { ...sceneModels.Models, [modelName]: scene } } }))
-      addMaterial({ materials, val: undefined })
-      const { Models } = get().sceneModels
-    },
-    addMaterial({ materials, ...otherProps }) {
-      set(({ loadedMaterials }) => ({ loadedMaterials: { ...loadedMaterials, Materials: { ...loadedMaterials.Materials, ...materials }, ...otherProps } }))
-      set(({ disposables }) => ({ disposables: { ...disposables } }))
+      //callback when loader notify progress update
 
-      const Materials = get().loadedMaterials.Materials
+      // update each model with the bytes loaded total was stored previously
+      set(({ preloadModelState }) => (
+        {
+          preloadModelState: { ...preloadModelState, [modelName]: { ...preloadModelState[modelName], sizeLoaded: sizeLoaded } }
+        }))
+      const preloadModelState = get().preloadModelState
 
-      if (Materials.BlackMetal && Materials.WhiteMetal && Materials.glass) {
-        const SvgModels = createExtrudeMeshes(get().SVGGeom, get().loadedMaterials.Materials)
-        set(() => ({ SVGModels: { ...SvgModels } }))
+      // calculate total of bytes loaded and total size of all models to calculate percentage
+      // Number of files loaded will be calculated when  onComplete call back
+      const newPreloadState = Object.values(preloadModelState).reduce((acum, model) => {
+        const { filesTotal, sizeTotal, sizeLoaded } = acum
+        const newSizeLoaded = { filesTotal: filesTotal + 1, sizeTotal: sizeTotal + model.sizeTotal, sizeLoaded: sizeLoaded + model.sizeLoaded }
 
+
+        return ({ ...newSizeLoaded, overlayState: newSizeLoaded.sizeLoaded >= newSizeLoaded.sizeTotal ? 2 : 1 })
       }
+        , { filesTotal: 0, sizeTotal: 0, sizeLoaded: 0 })
+      set(({ preloadState }) => ({ preloadState: { ...preloadState, ...newPreloadState, } }))
+
+
+
     },
-    addMeshToScene({ mesh, scene, type }) {
+    onCompleteLoad({ Object3d, modelName, transform }) {
+      //New object 3D is added to Models
+      set(({ Models }) => ({ Models: { ...Models, [modelName]: Object3d } }))
 
-      const { SVGModels } = get()
+      //Some materials era easyer o exclusive of R3f
+      const { preloadState, customMaterials, Models, threeState } = get()
+      const { gl, scene, camera } = threeState
 
-      addSVGtoScene({ meshes: SVGModels["iplogo"], scene })
+      //Apply default transform of each model
+      const { position, scale, rotation } = transform
+      setMatrix({ Object3d: Object3d.scene, transform })
 
+      //Some Models need materials to be replacer with r3f mats
+      if (modelName === "IPFabric") {
+        const center = Object3d.getObjectByName('Center')
+        center.material = customMaterials["glass"]
+      }
 
+      // add loaded object to the scene avoid stutters later when added but can cause freeze on canvas
+      // but preloaded is still active
+      scene.add(Object3d.scene)
+      gl.compile(scene, camera)
+      scene.remove(Object3d.scene)
+      // When all load and compilation is complete is when preloader dissaper so we count completed load here 
+      const totalModelsLoaded = Object.keys(Models).length
+      set(({ preloadState }) => ({
+        preloadState: {
+          ...preloadState,
+          filesLoaded: totalModelsLoaded, overlayState:
+            preloadState.filesTotal === totalModelsLoaded ? 3 : preloadState.overlayState
+        }
+      }))
+    },
 
-    }
+    addMaterial({ materials }) {
 
-
-
-
-
-
+      set(({ customMaterials }) => ({ customMaterials: { ...customMaterials, ...materials } }))
+    },
 
 
   }
-})))
+}))
 
 
 
 
 
+
+
+
+if (process.env.NODE_ENV === 'development') {
+  mountStoreDevtool('Store', useStore)
+}
 

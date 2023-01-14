@@ -1,6 +1,13 @@
+import { useEffect } from 'react'
 import { Grid } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
+
+
+
+
+
 export function GridFloor() {
-  const size = 30
+
   const { gridSize, ...gridConfig } = {
     gridSize: [10.5, 10.5],
     cellSize: 0.5,

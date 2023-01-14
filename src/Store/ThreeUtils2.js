@@ -1,43 +1,33 @@
 import * as THREE from 'three'
-import InstancedGroupMesh from "three-instanced-group-mesh"
-// three modules for load models
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
-import { SVGLoader } from 'three-stdlib'
-import { SvgModels } from './SvgFiles'
+import { ModelsList } from './ModelsList'
 
-
-//create Loaders for gltf,
-export function createLoaders() {
-
-  const loader = new GLTFLoader()
-  const dracoLoader = new DRACOLoader()
-  const svgLoader = new SVGLoader()
-  dracoLoader.setDecoderPath('/libs/draco/')
-  loader.setDRACOLoader(dracoLoader)
-
-  return { gltfloader: loader, svgLoader }
-}
 
 //load models of a certain stage. Need a callback for onUpdate for preloaders and other for onComplete for store scenes and materials
-export function preloadModels({ stage, stagePreloadData: models, onUpdateLoadModel, onCompleteLoadModel, threeLoaders }) {
+export function preloadModels({ onUpdateLoad, onCompleteLoad }) {
 
-  const { gltfloader } = threeLoaders
+  const gltfloader = new GLTFLoader()
+  const dracoLoader = new DRACOLoader()
+  dracoLoader.setDecoderPath('/libs/draco/')
+  gltfloader.setDRACOLoader(dracoLoader)
 
-
-  models.map((model, index) => {
+  const Models = {}
+  const ResultLoader = ModelsList.map((model, index) => {
 
     const { modelName, modelFile } = model
-    let materials = undefined
+
     gltfloader.loadAsync(`/models/${modelFile}`,
       //progress function
       (xhr) => {
-        onUpdateLoadModel({ modelName, stage, index, sizeLoaded: xhr.loaded })
+        onUpdateLoad({ modelName, index, sizeLoaded: xhr.loaded })
       },
     )
       .then((gltf) => {
         // activate shadows on models
+
         gltf.scene.traverse(function (node) {
+
           if (node.isMesh) {
             node.castShadow = true
             node.receiveShadow = true
@@ -48,10 +38,15 @@ export function preloadModels({ stage, stagePreloadData: models, onUpdateLoadMod
 
           }
 
+
         })
-        onCompleteLoadModel({ modelName, scene: gltf.scene, stage, materials })
+        onCompleteLoad({ Object3d: gltf.scene, modelName })
+        //onCompleteLoadModel({ modelName, scene: gltf.scene, stage, materials })
       })
+
+    return
   })
+
   return
 }
 
@@ -119,9 +114,6 @@ export function createExtrudeMeshes(Geom, materials) {
 }
 export function addSVGtoScene({ meshes, scene }) {
   const group = new THREE.Group()
-  console.log("*********")
-  console.log(scene)
-  console.log("*********")
   Object.values(meshes).map(meshData => {
     const { mesh, material } = meshData
 

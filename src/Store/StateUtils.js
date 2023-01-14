@@ -14,6 +14,22 @@ function getInitialState() {
 
 
 }
+export const progress = getInitialState()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function updateLoadModel({ stage, index, sizeLoaded, fileLoadState }) {
 
   //console.log(sizeLoaded)
