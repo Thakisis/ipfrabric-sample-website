@@ -5,8 +5,8 @@ import { Text3D } from '@react-three/drei'
 export function Preloader() {
 
   const loaderDashoffsetTotal = 502
-  const { percentLoaded, overlayState } = useStore(state => state.preloadState)
-
+  const { percentLoaded, overlayState, filesTotal, filesLoaded } = useStore(state => state.preloadState)
+  const preloadState = useStore(state => state.preloadState)
 
   const calc = (loaderDashoffsetTotal / 100)
   const percent = Math.round(calc * percentLoaded)
@@ -15,8 +15,8 @@ export function Preloader() {
 
   const logoContent = overlayState === 0 ? "Initializing" : overlayState === 2 ? "Compiling" : overlayState === 3 ? "Complete " : `${percent}`
 
-  //  let offset = loaderDashoffsetTotal - percent
-
+  console.log(overlayState === 1 ? `Loaded ${filesLoaded} files of ${filesTotal}` : "")
+  console.log(preloadState)
 
   return (
     <div className={[styles.overlay, styles.flex, styles.cac, styles.vac, overlayState === 3 ? styles.overlayOut : ""].join(" ")}>
@@ -32,7 +32,7 @@ export function Preloader() {
             {logoContent}
           </span>
         </div>
-        <div className={styles.tipContainer}>texto loading</div>
+        <div className={styles.tipContainer}> {overlayState === 1 ? "Loading Models" : ""}</div>
       </div>
     </div>
   )

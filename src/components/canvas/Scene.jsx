@@ -4,7 +4,7 @@ import { OrbitControls, Preload } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 import { GridFloor } from './GridFloor'
 import { Camera } from './Camera'
-import { LightEffects } from './Lights'
+import { Lights } from './Lights'
 import { GetScene } from './GetScene'
 import { Stages } from './Stages'
 export default function Scene({ children, ...props }) {
@@ -16,7 +16,7 @@ export default function Scene({ children, ...props }) {
       <directionalLight intensity={0.75} />
       <ambientLight intensity={0.75} />
       <Camera />
-      <LightEffects></LightEffects>
+      <Lights></Lights>
       <Stages></Stages>
       <GridFloor />
       <Perf overClock />
