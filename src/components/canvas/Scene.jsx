@@ -4,7 +4,7 @@ import { OrbitControls, Preload } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 import { GridFloor } from './GridFloor'
 import { Camera } from './Camera'
-import { LightEffects } from './LightEffects'
+import { LightEffects } from './Lights'
 import { GetScene } from './GetScene'
 import { Stages } from './Stages'
 export default function Scene({ children, ...props }) {
