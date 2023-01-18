@@ -1,0 +1,39 @@
+import React, { useEffect, useState } from 'react'
+import styles from './Preloader.module.scss'
+import { useStore } from '@/Store'
+import { Text3D } from '@react-three/drei'
+export function Preloader() {
+
+  const loaderDashoffsetTotal = 502
+  const { percentLoaded, overlayState } = useStore(state => state.preloadState)
+
+
+  const calc = (loaderDashoffsetTotal / 100)
+  const percent = Math.round(calc * percentLoaded)
+  const offset = loaderDashoffsetTotal - percent
+
+
+  const logoContent = overlayState === 0 ? "Initializing" : overlayState === 2 ? "Compiling" : overlayState === 3 ? "Complete " : `${percent}`
+
+  //  let offset = loaderDashoffsetTotal - percent
+
+
+  return (
+    <div className={[styles.overlay, styles.flex, styles.cac, styles.vac, overlayState === 3 ? styles.overlayOut : ""].join(" ")}>
+      <div>
+        <div className={[styles.loader, styles.preloader, styles.flex, styles.vac, overlayState === 3 ? styles.out : styles.preloaderIn].join(" ")} >
+          <svg width="200" height="200" >
+            <circle className={styles.background} cx="90" cy="90" r="80" transform="rotate(-90, 100, 90)" />
+            <circle className={styles.outer} cx="90" cy="90" r="80" transform="rotate(-90, 100, 90)" style={{ strokeDashoffset: `${offset}px`, opacity: overlayState !== 1 ? 1 : 0 }} />
+          </svg>
+          <span className={styles.circleBackground}></span>
+          <span className={[styles.logo, styles.animated, overlayState === 3 ? styles.fadeOut : styles.fadeIn].join(" ")} >
+
+            {logoContent}
+          </span>
+        </div>
+        <div className={styles.tipContainer}>texto loading</div>
+      </div>
+    </div>
+  )
+}

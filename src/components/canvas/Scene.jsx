@@ -6,7 +6,7 @@ import { GridFloor } from './GridFloor'
 import { Camera } from './Camera'
 import { LightEffects } from './LightEffects'
 import { GetScene } from './GetScene'
-import ComputerNetwork from './Objects3D/ComputerNetwork'
+import { Stages } from './Stages'
 export default function Scene({ children, ...props }) {
   // Everything defined in here will persist between route changes, only children are swapped
 
@@ -17,7 +17,7 @@ export default function Scene({ children, ...props }) {
       <ambientLight intensity={0.75} />
       <Camera />
       <LightEffects></LightEffects>
-      <ComputerNetwork></ComputerNetwork>
+      <Stages></Stages>
       <GridFloor />
       <Perf overClock />
       <OrbitControls />

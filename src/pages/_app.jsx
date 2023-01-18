@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import Header from '@/config'
 import Layout from '@/components/dom/Layout'
 import '@/styles/index.css'
+import { Preloader } from '@/components/dom/Preloader'
 const Scene = dynamic(() => import('@/components/canvas/Scene'), { ssr: true })
 
 export default function App({ Component, pageProps = { title: 'index' } }) {
@@ -20,6 +21,7 @@ export default function App({ Component, pageProps = { title: 'index' } }) {
             {Component.canvas(pageProps)}
           </Scene>
         )}
+        <Preloader></Preloader>
       </Layout>
     </>
   )

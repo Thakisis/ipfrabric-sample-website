@@ -8,7 +8,7 @@ export const Materials = () => {
   const { addMaterial, addMeshToScene } = useStore((state) => state.Actions)
   // once material is created component will be removed 
   const { scene } = useThree()
-  console.log("mats")
+
   useEffect(() => {
 
     if (glassRef.current) {

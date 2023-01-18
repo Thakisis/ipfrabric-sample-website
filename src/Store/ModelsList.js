@@ -3,7 +3,7 @@ export const ModelsList = [
   {
     modelName: 'computer',
     modelFile: 'ComputerNetwork.glb',
-    sizeTotal: 61700,
+    sizeTotal: 61136,
     position: [0, 0, 0],
     scale: [1, 1, 1],
     rotation: [0, 0, 0]
