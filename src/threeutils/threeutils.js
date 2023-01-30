@@ -1,17 +1,24 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
-import { ModelsList } from '@/Store/ModelsList'
+import { ModelsList, TextureList } from '@/Store/ModelsList'
 import InstancedGroupMesh from 'three-instanced-group-mesh'
 
-//load models of a certain stage. Need a callback for onUpdate for preloaders and other for onComplete for store scenes and materials
-export function preloadModels({ onUpdateLoad, onCompleteLoad }) {
 
-  const gltfloader = new GLTFLoader()
-  const dracoLoader = new DRACOLoader()
+const gltfloader = new GLTFLoader()
+const dracoLoader = new DRACOLoader()
+
+const ktx2Loader = new KTX2Loader()
+
+//load models of a certain stage. Need a callback for onUpdate for preloaders and other for onComplete for store scenes and materials
+export function preloadModels({ onUpdateLoad, onCompleteLoad, gl }) {
+
   dracoLoader.setDecoderPath('/libs/draco/')
   gltfloader.setDRACOLoader(dracoLoader)
-
+  ktx2Loader.setTranscoderPath('/libs/basis/')
+  ktx2Loader.detectSupport(gl)
+  gltfloader.setKTX2Loader(ktx2Loader)
   const Models = {}
   const ResultLoader = ModelsList.map((model, index) => {
 
@@ -30,23 +37,20 @@ export function preloadModels({ onUpdateLoad, onCompleteLoad }) {
         gltf.scene.traverse(function (node) {
 
           if (node.isMesh) {
+            const groupName = node.name.split("-")[1]
 
             node.castShadow = true
             node.receiveShadow = true
             nodes.push(node)
 
-            // Materials gltf are used for load materials from blender for use in extrusion and other objects
           }
 
 
         })
 
-        const group = new THREE.Group()
-        nodes.map((node) => {
-          group.add(node)
-        })
 
-        onCompleteLoad({ Object3d: group, modelName, transform, nodes })
+
+        onCompleteLoad({ Object3d: gltf.scene, modelName, transform, nodes })
         //onCompleteLoadModel({ modelName, scene: gltf.scene, stage, materials })
       })
 
@@ -55,6 +59,45 @@ export function preloadModels({ onUpdateLoad, onCompleteLoad }) {
 
   return
 }
+
+
+export function preloadTextures({ onUpdateLoad, onCompleteLoad, gl }) {
+
+  /*const ktx2Loader = new KTX2Loader()
+  ktx2Loader.setTranscoderPath('/libs/basis/')
+  ktx2Loader.detectSupport(gl)
+  const imageloader = new THREE.TextureLoader()
+
+  const ResultLoader = TextureList.map((texture, index) => {
+
+    const { imageName, fileName, format, size } = texture
+
+    const loader = format === "KTX2" ? ktx2Loader : imageloader
+    loader.loadAsync(`/textures/${fileName}`,
+      //progress function
+      (xhr) => {
+        console.log(xhr, imageName)
+        //onUpdateLoad({ modelName, index, sizeLoaded: xhr.loaded })
+
+      },
+    )
+      .then((image) => {
+        console.log(image, imageName)
+
+        //onCompleteLoad({ Object3d: group, modelName, transform, nodes })
+
+      })
+
+    return
+  })
+*/
+  return
+}
+
+
+
+
+
 // function to get Matrix from a transfrom Objec{position[3],rotation[3],scale[3]}
 export function getMatrix(transformArray) {
   const dummy = new THREE.Object3D()

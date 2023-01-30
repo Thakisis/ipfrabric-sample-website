@@ -1,16 +1,22 @@
 import create from 'zustand'
 import { mountStoreDevtool } from 'simple-zustand-devtools'
-import { preloadModels, setMatrix, createNetworkInstances } from '@/threeutils'
+import { preloadModels, setMatrix, createNetworkInstances, preloadTextures } from '@/threeutils'
 import { ModelsList } from './ModelsList'
+
+
+
+
 
 export const useStore = create((set, get) => ({
 
   //PreloadState contains objects fileLoadState,stageLoadState, sceneLoadState
   preloadState: { overlayState: 0 },
-  preloadModelState: { overlayState: 0, percentLoaded: 0 },
+  preloadModelState: { percentLoaded: 0 },
+  preloadImageState: { percentLoaded: 0 },
   animations: {},
   Models: {},
-  nodes: {},
+  customScenes: {},
+  customTextures: {},
   Instances: {},
   threeState: {},
   customMaterials: {},
@@ -21,10 +27,10 @@ export const useStore = create((set, get) => ({
     // start preload of stage 0
     initPreload() {
 
-      const { onUpdateLoad, onCompleteLoad, createTimeLines } = get().Actions
-
+      const { onUpdateLoad, onCompleteLoad } = get().Actions
+      const { gl } = get().threeState
       // call a function for load all models passing two callbacks one for progres on percent of load and other for event load complete
-      const initialPreloadState = preloadModels({ onUpdateLoad, onCompleteLoad })
+      const initialPreloadState = preloadModels({ onUpdateLoad, onCompleteLoad, gl })
 
       //Initialize global preloadstate from data in ModelList
       set(({ preloadState }) => ({ preloadState: { ...initialPreloadState, filesTotal: 0, filesLoaded: 0, sizeTotal: 0, sizeLoaded: 0, percentLoaded: 0, overlayState: 1 } }))
@@ -38,16 +44,13 @@ export const useStore = create((set, get) => ({
       set(() => ({ preloadModelState: { ...ModelObj } }))
 
     },
-    createTimeLines() {
-      const timelines = getTimeLines()
-
-      set(() => ({ animations: timelines }))
-    },
     setThree(three) {
-
+      const { gl } = three
+      //      preloadTextures({ gl })
       //Component GetScene is rendered when Scene3D is created and call this function to store scene, gl for precompilation, cameraq ...
       set(() => ({ threeState: { ...three } }))
     },
+
     onUpdateLoad({ modelName, sizeLoaded }) {
 
       //callback when loader notify progress update
@@ -84,7 +87,7 @@ export const useStore = create((set, get) => ({
       //Some materials era easyer o exclusive of R3f
       const { preloadState, customMaterials, Models, threeState } = get()
       const { gl, scene, camera } = threeState
-
+      const { onLoadModelSideEffect } = get().Actions
       //Apply default transform of each model
       const { position, scale, rotation } = transform
       setMatrix({ Object3d: Object3d, transform })
@@ -97,6 +100,7 @@ export const useStore = create((set, get) => ({
 
       // add loaded object to the scene avoid stutters later when added but can cause freeze on canvas
       // but preloaded is still active
+      onLoadModelSideEffect({ modelLoaded: Object3d, modelName })
       scene.add(Object3d)
       gl.compile(scene, camera)
       scene.remove(Object3d)
@@ -109,8 +113,8 @@ export const useStore = create((set, get) => ({
             preloadState.filesTotal === totalModelsLoaded ? 3 : preloadState.overlayState
         }
       }))
-      const { onLoadModelSideEffect } = get().Actions
-      onLoadModelSideEffect({ modelLoaded: Object3d, modelName })
+
+
     },
     onLoadModelSideEffect({ modelLoaded, modelName }) {
 
@@ -121,13 +125,48 @@ export const useStore = create((set, get) => ({
         scene.add(newInstance.model)
         gl.compile(scene, camera)
         scene.remove(newInstance.model)
-
-
-
         set(({ Instances }) => ({ Instances: { ...Instances, ["Network"]: { ...newInstance } } }))
 
-
+        return
       }
+      if (modelName === "ipfabric") {
+        const nodes = {}
+        const materials = {}
+        modelLoaded.traverse(function (node) {
+
+          if (node.isMesh) {
+
+            if (node.name === "Center") {
+              const { customMaterials } = get()
+              node.material = customMaterials.glass
+            }
+
+
+            node.castShadow = true
+            node.receiveShadow = true
+            nodes[node.name] = node
+            materials[node.material.name] = node.material
+
+          }
+        })
+        set(({ customScenes }) => ({ customScenes: { ...customScenes, [modelName]: { nodes, materials } } }))
+        // Materials gltf are used for load materials from blender for use in extrusion and other objects
+      }
+
+      if (modelName === "textureContainer") {
+        const textures = {}
+        modelLoaded.traverse(function (node) {
+
+          if (node.isMesh) {
+            textures[node.material.name] = node.material.map
+          }
+
+
+        })
+        set(() => ({ customTextures: { ...textures } }))
+      }
+
+
     },
 
     setStage({ stage, transitionStage }) {

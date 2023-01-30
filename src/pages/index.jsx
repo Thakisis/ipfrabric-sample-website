@@ -10,11 +10,11 @@ const Logo = dynamic(() => import('@/components/canvas/Logo'), { ssr: false })
 // Dom components go here
 export default function Page(props) {
   return (
-    <Instructions>
-      This is a minimal starter for Nextjs + React-three-fiber and Threejs. Click on the{' '}
-      <span className='text-cyan-200'>atoms nucleus</span> to navigate to the{' '}
-      <span className='text-green-200'>/blob</span> page. OrbitControls are enabled by default.
-    </Instructions>
+    <div style={{
+      position: "absolute", height: "300vh", width: "100%",
+    }}>
+      test text
+    </div>
   )
 }
 

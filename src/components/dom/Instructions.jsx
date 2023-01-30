@@ -5,7 +5,7 @@ export default function Instructions({ children }) {
       style={{ maxWidth: 'calc(100% - 28px)' }}>
 
       <div className='tracking-wider'>
-
+        test text
       </div>
     </div>
   )

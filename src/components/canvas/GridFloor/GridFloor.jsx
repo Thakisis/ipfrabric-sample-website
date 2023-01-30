@@ -12,17 +12,18 @@ export function GridFloor() {
     gridSize: [10.5, 10.5],
     cellSize: 0.5,
     cellThickness: .9,
-    cellColor: '#a2ddff',
+    cellColor: '#666',
     sectionSize: 3,
     sectionThickness: 1.,
-    sectionColor: '#ffffff',
-    fadeDistance: 25,
+    sectionColor: '#000',
+    fadeDistance: 50,
     fadeStrength: 1,
-    followCamera: false,
+    followCamera: true,
     infiniteGrid: true
   }
 
   return (
-    <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
+    <Grid position={[0, 0, 0]} args={gridSize} {...gridConfig} />
   )
 }
+//  

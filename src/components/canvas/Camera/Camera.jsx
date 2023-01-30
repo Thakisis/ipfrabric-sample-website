@@ -1,9 +1,11 @@
 import { useRef } from 'react'
-import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei'
+import { CameraControls, PerspectiveCamera } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-export const Camera = () => {
+export const Camera = ({ props }) => {
   const cameraRef = useRef()
+
+
   //const { viewport } = useThree()
   useFrame(({ mouse, viewport }) => {
     const x = (mouse.x * viewport.width) / 1000
@@ -13,21 +15,24 @@ export const Camera = () => {
 
 
   })
+
+
+
   return (
     <>
+
+
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
         position={[6, 2.5, 10]}
         rotation={[-.19, .65, .1]}
 
+
         fov={25} />
-      <OrbitControls
-      //        maxAzimuthAngle={.95}
-      //        minAzimuthAngle={.65}
-      //minPolarAngle={1.35}
-      //maxPolarAngle={1.35}
-      />
+
+
+
 
     </>
 
@@ -35,5 +40,16 @@ export const Camera = () => {
 }
 
 function Rig({ vec = new THREE.Vector3() }) {
-  useFrame((state) => state.camera.position.lerp(vec.set(6 + state.pointer.x, 2.5, 10), 0.1))
+  const lockCamera = true
+  useFrame((state) => {
+
+    //state.camera.position.lerp(vec.set(6 + state.pointer.x, 2.5, 10), 0.1)
+    if (lockCamera) {
+      state.camera.position.set(0, 1.57, 5)
+      state.camera.lookAt(0, 1.57, 0)
+    }
+
+    //state.camera.lookAt(2.39, 2., 10.56)
+
+  })
 }

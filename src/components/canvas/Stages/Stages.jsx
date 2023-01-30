@@ -1,5 +1,6 @@
 import { useStore } from "@/Store"
 import { Stage1 } from './Stage1'
+import { StagePreload } from "./StagePreload"
 export function Stages() {
   const { StagesStates, setStage } = useStore(state => ({ StagesStates: state.StagesState, setStage: state.Actions.setStage }))
   const { entering, inside, leaving, phaseIn } = StagesStates
@@ -11,18 +12,9 @@ export function Stages() {
   return (
     <>
       {StageComponent}
-      <mesh castShadow position={[0, .5, 0]}
-        onClick={() => setStage({ stage: 1, transitionStage: 0 })}
-      >
-        <sphereGeometry args={[0.25, 64, 64]} />
-        <meshStandardMaterial
-          opacity={1} //
-          roughness={0.1}
-          color={0x030303}
-          metalness={1}
-        />
 
-      </mesh>
+      <StagePreload></StagePreload>
+
     </>
   )
 };

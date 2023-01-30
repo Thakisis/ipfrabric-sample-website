@@ -24,9 +24,9 @@ export const ModelsList = [
   {
     modelName: 'microsoftStudio',
     modelFile: 'MicrosoftStudio.glb',
-    sizeTotal: 283756,
-    position: [2.03, 0, 1.56],
-    scale: [2, 2, 2],
+    sizeTotal: 140524,
+    position: [0, 0, 0],
+    scale: [1, 1, 1],
     rotation: [0, 0, 0]
 
   },
@@ -38,13 +38,12 @@ export const ModelsList = [
     scale: [1, 1, 1],
     rotation: [0, 0, 0]
 
-  }
-  ,
+  },
   {
     modelName: 'ipfabric',
     modelFile: 'IPFabric.glb',
-    sizeTotal: 28608,
-    position: [6, 0, 2.77],
+    sizeTotal: 16340,
+    position: [0, 0, 0],
     scale: [1, 1, 1],
     rotation: [0, 0, 0]
 
@@ -55,3 +54,34 @@ export const ModelsList = [
 ]
 
 
+export const TextureList = [
+  {
+    imageName: "screenshot",
+    fileName: "Screenshot.ktx2",
+    format: "KTX2",
+    size: 33,
+
+
+  },
+  {
+    imageName: "ipfabricDecal",
+    fileName: "ipfabricDecal.ktx2",
+    format: "KTX2",
+    sizeKtx2: 33,
+
+
+  },
+  {
+    imageName: "spinnerDecal",
+    fileName: "SpinnerDecal.ktx2",
+    format: "KTX2",
+    sizeKtx2: 33,
+
+
+  },
+
+
+
+
+
+]
