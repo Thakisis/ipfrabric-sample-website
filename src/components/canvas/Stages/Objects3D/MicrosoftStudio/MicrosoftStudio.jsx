@@ -21,7 +21,6 @@ const MicrosoftStudio = () => {
 
 
   }, [camera, planeRef, size])
-  const groupTransform = { position: [0, 0, 0], rotation: [0, 0, 0] }
   const cameraTransform = {
 
     position: [4.46, 1.83, 7.24],
