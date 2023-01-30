@@ -4,7 +4,7 @@ import { OrbitControls, Preload } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 import { GridFloor } from './GridFloor'
 import { Camera } from './Camera'
-import { Lights } from './Lights'
+import { Lights } from './BasicLights'
 import { GetScene } from './GetScene'
 import { Stages } from './Stages'
 
