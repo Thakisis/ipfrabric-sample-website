@@ -1,7 +1,5 @@
-import { useState, useTransition } from 'react'
 import { Environment, ContactShadows, Lightformer, CameraControls } from "@react-three/drei"
-import { useControls } from 'leva'
-export const Lights = () => {
+export function Lights(props) {
 
   return (
     <>

@@ -1,12 +1,10 @@
 import { useRef, useLayoutEffect } from "react"
-import { useControls } from 'leva'
 import { HtmlStudio } from '@/components/dom/HtmlCanvas'
 import { useThree, useFrame } from "@react-three/fiber"
-import { BakeShadows } from "@react-three/drei"
 import { useStore } from "@/Store"
-
 import * as THREE from 'three'
 import { easing } from 'maath'
+
 const MicrosoftStudio = () => {
   const { overlayState } = useStore(state => state.preloadState)
   const planeRef = useRef()
