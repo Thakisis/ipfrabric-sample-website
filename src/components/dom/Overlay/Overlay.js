@@ -14,7 +14,7 @@ const Overlay = () => {
       })
     }
 
-
+    s
   }, [bgRef, overlayState, initPreload])
 
   return (
