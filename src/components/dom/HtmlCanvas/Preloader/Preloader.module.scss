@@ -1,5 +1,5 @@
 .studioScreen {
-  background-color: red;
+  background-color: black;
   width: 100%;
   height: 100%;
   display: flex;
@@ -23,9 +23,9 @@
 
 $Loader-color: #fff;
 $Loader-size: 20rem;
-$Loader-offset: 0.9rem;
+$Loader-offset: 0.5rem;
 $Loader-timing: ease-in-out;
-$Loader-stroke: 4;
+$Loader-stroke: 1;
 
 .Loader {
   position: relative;
@@ -40,7 +40,8 @@ $Loader-stroke: 4;
   //margin-top: $Loader-size/2;
   //margin-bottom: $Loader-size/2;
   .progress {
-    font-size: 2.5rem;
+    color: white;
+    font-size: 2rem;
   }
   .percent {
     position: absolute;

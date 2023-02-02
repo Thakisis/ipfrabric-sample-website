@@ -6,7 +6,7 @@ const Layout = forwardRef(({ children, ...props }, ref) => {
   return (
     <div
       ref={mergeRefs([ref, localRef])}
-      className='top-0 left-0 h-screen z-99999 w-100 dom bg-zinc-900 text-gray-50'>
+      className='top-0 left-0 h-screen bg-red-900  w-100 dom text-black-50'>
       {children}
     </div>
   )

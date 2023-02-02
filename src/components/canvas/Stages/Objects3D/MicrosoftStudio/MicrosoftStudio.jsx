@@ -4,46 +4,35 @@ import { useThree, useFrame } from "@react-three/fiber"
 import { useStore } from "@/Store"
 import * as THREE from 'three'
 import { easing } from 'maath'
-
+import { BakeShadows } from "@react-three/drei"
 const MicrosoftStudio = () => {
   const { overlayState } = useStore(state => state.preloadState)
   const planeRef = useRef()
   const { Models, customTextures } = useStore((state) => ({ Models: state.Models, customTextures: state.customTextures }))
   const model = Models["microsoftStudio"]
   const { size, camera } = useThree()
-
-
   useLayoutEffect(() => {
     if (planeRef && camera) {
       zoomCameraToSelection(camera, size, planeRef.current)
 
     }
-
-
   }, [camera, planeRef, size])
   const cameraTransform = {
-
     position: [4.46, 1.83, 7.24],
     rotation: [-0.11, 0.72, 0.07],
-
   }
 
-
-
   useFrame((state, delta) => {
-    if (overlayState === 3) {
+    if (overlayState === 5) {
       easing.damp3(state.camera.position, cameraTransform.position, 2, delta)
       easing.damp3(state.camera.rotation, cameraTransform.rotation, 2, delta)
-
-
-
     }
   })
 
 
   return (
     <group >
-      {overlayState === 3 && < primitive object={model} scale={5} position={[0, 0, 0]} />}
+      {overlayState === 4 && < primitive object={model} scale={5} position={[0, 0, 0]} />}
 
 
       <mesh position={[0, 1.57, -0.090]} rotation={[0, 0, 0]} ref={planeRef}
@@ -54,7 +43,7 @@ const MicrosoftStudio = () => {
         <meshPhysicalMaterial
           //map={ScreenShot}
           //emissiveMap={ScreenShot}
-          color="red"
+          color="black"
           opacity={0}
           metalness={1}
           roughness={0}
@@ -68,7 +57,7 @@ const MicrosoftStudio = () => {
       <HtmlStudio />
 
 
-
+      <BakeShadows></BakeShadows>
 
     </group >
   )

@@ -1,6 +1,6 @@
 import create from 'zustand'
 import { mountStoreDevtool } from 'simple-zustand-devtools'
-import { preloadModels, setMatrix, createNetworkInstances, preloadTextures } from '@/threeutils'
+import { preloadModels, createNetworkInstances, preloadTextures, prepareModels } from '@/threeutils'
 import { ModelsList } from './ModelsList'
 
 
@@ -10,15 +10,27 @@ import { ModelsList } from './ModelsList'
 export const useStore = create((set, get) => ({
 
   //PreloadState contains objects fileLoadState,stageLoadState, sceneLoadState
+  /*
+    overlayState values
+    0 nothing rendered
+    1 preloaded rendered
+    2 fileload started 
+    3 fileload complete 
+    4 scene compiled
+    5 first Scene Ready
+
+  */
   preloadState: { overlayState: 0 },
   preloadModelState: { percentLoaded: 0 },
   preloadImageState: { percentLoaded: 0 },
   animations: {},
   Models: {},
+  ModelsElements: {},
+  ModelsLoaded: {},
   customScenes: {},
   customTextures: {},
   Instances: {},
-  threeState: {},
+  threeState: undefined,
   customMaterials: {},
   isStore: false,
   StagesState: { entering: -1, inside: -1, leaving: -1, phaseIn: 0 },
@@ -33,7 +45,7 @@ export const useStore = create((set, get) => ({
       const initialPreloadState = preloadModels({ onUpdateLoad, onCompleteLoad, gl })
 
       //Initialize global preloadstate from data in ModelList
-      set(({ preloadState }) => ({ preloadState: { ...initialPreloadState, filesTotal: 0, filesLoaded: 0, sizeTotal: 0, sizeLoaded: 0, percentLoaded: 0, overlayState: 1 } }))
+      set(({ preloadState }) => ({ preloadState: { ...initialPreloadState, filesLoaded: 0, sizeLoaded: 0, percentLoaded: 0, overlayState: 2 } }))
 
       // create Object with all models where the name of model become the key of each model object
       const ModelObj = ModelsList.reduce((acum, model) => {
@@ -49,6 +61,12 @@ export const useStore = create((set, get) => ({
       //      preloadTextures({ gl })
       //Component GetScene is rendered when Scene3D is created and call this function to store scene, gl for precompilation, cameraq ...
       set(() => ({ threeState: { ...three } }))
+
+    },
+
+    //set overlayState
+    setOverlay(value) {
+      set(({ preloadState }) => ({ preloadState: { ...preloadState, overlayState: value } }))
     },
 
     onUpdateLoad({ modelName, sizeLoaded }) {
@@ -66,13 +84,9 @@ export const useStore = create((set, get) => ({
       // Number of files loaded will be calculated when  onComplete call back
       const newPreloadState = Object.values(preloadModelState).reduce((acum, model) => {
         const { filesTotal, sizeTotal, sizeLoaded } = acum
-
-
         const newSizeLoaded = { filesTotal: filesTotal + 1, sizeTotal: sizeTotal + model.sizeTotal, sizeLoaded: sizeLoaded + model.sizeLoaded }
         const percentLoaded = newSizeLoaded.sizeLoaded / newSizeLoaded.sizeTotal * 100
-
-
-        return ({ ...newSizeLoaded, overlayState: newSizeLoaded.sizeLoaded >= newSizeLoaded.sizeTotal ? 2 : 1, percentLoaded: percentLoaded })
+        return ({ ...newSizeLoaded, percentLoaded: percentLoaded })
       }
         , { filesTotal: 0, sizeTotal: 0, sizeLoaded: 0, percentLoaded: 0 })
       set(({ preloadState }) => ({ preloadState: { ...preloadState, ...newPreloadState, } }))
@@ -80,32 +94,15 @@ export const useStore = create((set, get) => ({
 
 
     },
-    onCompleteLoad({ Object3d, modelName, transform }) {
-      //New object 3D is added to Models
-      set(({ Models }) => ({ Models: { ...Models, [modelName]: Object3d } }))
 
-      //Some materials era easyer o exclusive of R3f
-      const { preloadState, customMaterials, Models, threeState } = get()
-      const { gl, scene, camera } = threeState
-      const { onLoadModelSideEffect } = get().Actions
-      //Apply default transform of each model
-      const { position, scale, rotation } = transform
-      setMatrix({ Object3d: Object3d, transform })
+    onCompleteLoad({ scene, modelName, transform }) {
+      //store all models as loaded
 
-      //Some Models need materials to be replacer with r3f mats
-      if (modelName === "IPFabric") {
-        const center = Object3d.getObjectByName('Center')
-        center.material = customMaterials["glass"]
-      }
 
-      // add loaded object to the scene avoid stutters later when added but can cause freeze on canvas
-      // but preloaded is still active
-      onLoadModelSideEffect({ modelLoaded: Object3d, modelName })
-      scene.add(Object3d)
-      gl.compile(scene, camera)
-      scene.remove(Object3d)
-      // When all load and compilation is complete is when preloader dissaper so we count completed load here 
-      const totalModelsLoaded = Object.keys(Models).length
+      set(({ ModelsLoaded }) => ({ ModelsLoaded: { ...ModelsLoaded, [modelName]: { scene, transform } } }))
+      const updatedModelsLoaded = get().ModelsLoaded
+
+      const totalModelsLoaded = Object.keys(updatedModelsLoaded).length
       set(({ preloadState }) => ({
         preloadState: {
           ...preloadState,
@@ -114,8 +111,19 @@ export const useStore = create((set, get) => ({
         }
       }))
 
-
     },
+
+    compileModels() {
+      //prepare models for screne and add to renderer to compile and avoid stutter on add model to scene
+      const ModelsLoaded = get().ModelsLoaded
+      const { scene, camera, gl } = get().threeState
+      const { models, elements } = prepareModels(ModelsLoaded, scene, camera, gl)
+
+      set(() => ({ Models: models, ModelsElements: elements }))
+      set(({ preloadState }) => ({ preloadState: { ...preloadState, overlayState: 4 } }))
+
+    }
+    ,
     onLoadModelSideEffect({ modelLoaded, modelName }) {
 
       if (modelName === "computer") {

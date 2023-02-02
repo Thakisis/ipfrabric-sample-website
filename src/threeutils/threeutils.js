@@ -4,6 +4,7 @@ import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { ModelsList, TextureList } from '@/Store/ModelsList'
 import InstancedGroupMesh from 'three-instanced-group-mesh'
+import { Camera } from 'three'
 
 
 const gltfloader = new GLTFLoader()
@@ -33,24 +34,9 @@ export function preloadModels({ onUpdateLoad, onCompleteLoad, gl }) {
     )
       .then((gltf) => {
         // activate shadows on models
-        const nodes = []
-        gltf.scene.traverse(function (node) {
-
-          if (node.isMesh) {
-            const groupName = node.name.split("-")[1]
-
-            node.castShadow = true
-            node.receiveShadow = true
-            nodes.push(node)
-
-          }
 
 
-        })
-
-
-
-        onCompleteLoad({ Object3d: gltf.scene, modelName, transform, nodes })
+        onCompleteLoad({ scene: gltf.scene, modelName, transform })
         //onCompleteLoadModel({ modelName, scene: gltf.scene, stage, materials })
       })
 
@@ -143,9 +129,7 @@ export function setMatrix({ Object3d, transform }) {
 export function applyTransform({ obj, transform, debug }) {
 
   const { position, rotation, scale } = transform
-  if (debug) {
 
-  }
   if (position)
     obj.position.set(position[0], position[1], position[2])
   if (rotation)
@@ -216,10 +200,10 @@ export function getNetworkTransform({
   })
   return transformArray
 }
-
+// clamp two number in a interval if number is lower than min then min will be returned if number is higher than max then  return max 
 export function clamp(num, min, max) { return Math.min(Math.max(num, min), max) }
 
-
+// get matrix transform of all computer instances
 export function getNetworkMatrix({
   amount,      // amount of machines per network
   radius = 0,  // actual radius
@@ -254,28 +238,7 @@ export function getNetworkMatrix({
 
 
 
-export function getNetworkMatrix2({ amount, radius = 0, angle = 0, scale = 0, groupTransform = [0, 0, 0] }) {
-  const matrixArray = new Array(amount).fill(0).map((value, index) => {
-
-    const positionX = radius * Math.sin(Math.PI * 2 / amount * index + angle) + groupTransform[0]
-    const positionY = radius * Math.cos(Math.PI * 2 / amount * index + angle) + groupTransform[2]
-    const transform = {
-      position: [positionX, groupTransform[1], positionY],
-      rotation: [0, angle + Math.PI * 2 / amount * index, 0],
-      scale: [scale, scale, scale]
-    }
-    return (getMatrix(transform))
-  })
-
-  return matrixArray
-}
-
-
-
-
-
-
-
+// create all computer of all networks
 export function createNetworkInstances({ positionArray, computersInNetwork, model }) {
 
 
@@ -290,21 +253,100 @@ export function createNetworkInstances({ positionArray, computersInNetwork, mode
 
 
 
+export function prepareModels(scenes, mainScene, camera, gl) {
+  const models = {}
+  const elements = {}
+  const textures = getTexturesScene(scenes["textures"].scene)
+  console.log(textures)
+
+  Object.entries(scenes).map(([modelName, model]) => {
+    if (modelName === "textures")
+
+      return
 
 
+    model.scene.traverse(function (node) {
+      if (node.isMesh) {
 
-export function getNetworkTransform2({ amount, radius = 0, angle = 0, scale = 0, groupTransform = [0, 0, 0] }) {
-  const transformArray = new Array(amount).fill(0).map((value, index) => {
+        node.castShadow = true
+        node.receiveShadow = true
+        if (node.name.startsWith("Repl")) {
+          elements[modelName] = { ...elements[modelName], [node.name.substring(4)]: node }
+        }
+        if (node.name === "Screen-Back") {
+          console.log(node.material)
+          node.material.roughnessMap = textures["BackMonitorBW"]
+          node.material.metallness = 1
 
-    const positionX = radius * Math.sin(Math.PI * 2 / amount * index + angle) + groupTransform[0]
-    const positionY = radius * Math.cos(Math.PI * 2 / amount * index + angle) + groupTransform[2]
-    const transform = {
-      position: [positionX, groupTransform[1], positionY],
-      rotation: [0, angle + Math.PI * 2 / amount * index, 0],
-      scale: [scale, scale, scale]
-    }
-    return transform
+          node.material.needsUpdate = true
+
+        }
+        return
+      }
+      if (node.isGroup)
+        return
+
+      if (node.name.startsWith("Gri")) {
+
+        elements[modelName] = { ...elements[modelName], [node.name.substring(3)]: node }
+      }
+    })
+
+    applyTransform({ obj: model.scene, transform: model.transform })
+    mainScene.add(model.scene)
+    models[modelName] = model.scene
+
   })
 
-  return transformArray
+  gl.compile(mainScene, camera)
+
+  return { models, elements, textures }
+  //Some Models need materials to be replacer with r3f mats
+
+
+  // add loaded object to the scene avoid stutters later when added but can cause freeze on canvas
+  // but preloaded is still active
+  //onLoadModelSideEffect({ modelLoaded: Object3d, modelName })
+  //scene.add(Object3d)
+  //gl.compile(scene, camera)
+  //scene.remove(Object3d)
+  // When all load and compilation is complete is when preloader dissaper so we count completed load here 
+  /*
+  if (modelName === "IPFabric") {
+    const center = Object3d.getObjectByName('Center')
+    center.material = customMaterials["glass"]
+  }
+  const nodes = []
+  gltf.scene.traverse(function (node) {
+
+    if (node.isMesh) {
+      const groupName = node.name.split("-")[1]
+
+      node.castShadow = true
+      node.receiveShadow = true
+      nodes.push(node)
+
+    }
+
+
+  })*/
+}
+
+function getTexturesScene(scene) {
+  const textures = {}
+  scene.traverse(function (node) {
+    if (node.isMesh) {
+      node.castShadow = true
+      node.receiveShadow = true
+      const texture = node.material.map
+
+      textures[node.material.map.name] = texture
+
+    }
+
+  })
+  return textures
+
+
+
 }

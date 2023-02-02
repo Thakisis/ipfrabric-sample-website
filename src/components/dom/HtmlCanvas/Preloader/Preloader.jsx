@@ -1,29 +1,47 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import styles from './Preloader.module.scss'
 import { useControls } from 'leva'
 import { useStore } from '@/Store'
-
+import gsap from 'gsap'
 export function Preloader({ viewport }) {
+  const { setOverlay, preloadState, compileModels } = useStore(state => ({ setOverlay: state.Actions.setOverlay, compileModels: state.Actions.compileModels, preloadState: state.preloadState }))
+  const { percentLoaded, overlayState, filesTotal, filesLoaded } = preloadState
+  const pulseRef = useRef()
+  useEffect(() => {
+
+    setOverlay(1)
+  }, [setOverlay])
 
 
+  useLayoutEffect(() => {
+    if (overlayState === 3 && pulseRef.current)
+      gsap.to(pulseRef.current, {
+        duration: 1, transform: "scale(2)", opacity: 0,
+        onComplete: () => {
+
+          compileModels()
+        }
+      })
+
+  }, [overlayState, pulseRef, compileModels])
   const { width, height } = viewport
-  const dashtotal = 302
+  const dashtotal = 311
 
-  const { percentLoaded, overlayState, filesTotal, filesLoaded } = useStore(state => state.preloadState)
+
   //const preloadState = useStore(state => state.preloadState)
   //const calc = (loaderDashoffsetTotal / 100)
-  const percent = Math.round(percentLoaded)
+  const percent = overlayState >= 2 ? Math.round(percentLoaded) : 0
 
 
 
-  //const logoContent = overlayState === 0 ? "Initializing" : overlayState === 2 ? "Compiling" : overlayState === 3 ? "Complete " : `${percent}`
+  const preloaderContent = overlayState === 2 ? `${percent}` : overlayState === 3 ? "Compiling" : overlayState === 4 ? "Complete " : "Creating Scene"
 
   return (
     <div className={styles.studioScreen}>
       <div className={styles.container} style={{ width: `${width}px`, height: `${height}px` }}>
         <div className={styles.Loader}>
           <div className={styles.progress}>
-            {percent}%
+            {preloaderContent}
           </div>
           <svg className={styles.percent} viewBox="0  0  100 100">
 
@@ -36,7 +54,7 @@ export function Preloader({ viewport }) {
             />
 
           </svg>
-          <div className={styles.pulse}></div>
+          <div className={styles.pulse} ref={pulseRef}></div>
         </div>
       </div>
 

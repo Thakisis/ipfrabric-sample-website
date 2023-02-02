@@ -11,7 +11,7 @@ const Logo = dynamic(() => import('@/components/canvas/Logo'), { ssr: false })
 export default function Page(props) {
   return (
     <div style={{
-      position: "absolute", height: "300vh", width: "100%",
+      position: "absolute", height: ".4vh", width: "100%", pointerEvents: "none", color: "black", zIndex: -99
     }}>
       test text
     </div>
