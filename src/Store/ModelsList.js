@@ -13,7 +13,7 @@ const index = [
   {
     modelName: 'macBook',
     modelFile: 'Macbookpro.glb',
-    sizeTotal: 318336,
+    sizeTotal: 318376,
     position: [0, 0, 0],
     scale: [.3, .3, .3],
     rotation: [0, 0, 0],
