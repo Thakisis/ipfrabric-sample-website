@@ -1,21 +1,27 @@
-import { useLayoutEffect } from 'react'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useThree } from '@react-three/fiber'
 import { useStore } from '@/Store'
 
+
 export function GetScene() {
-
-
-  const { setThree, threeState } = useStore(state => ({ setThree: state.Actions.setThree, threeState: state.threeState }))
   const threeParam = useThree()
+  const { pathname } = useRouter()
 
-  useLayoutEffect(() => {
-    if (threeState)
+  const { setThree, threeState } = useStore(state => ({
+    setThree: state.Actions.setThree,
+    threeState: state.threeState,
+  }
+  ))
+  useEffect(() => {
+    if (!threeParam)
       return
-    if (threeParam)
+    if (!threeState)
       setThree(threeParam)
+  }, [pathname, threeState, setThree, threeParam])
 
 
-  }, [threeParam, setThree, threeState])
+
 
 
   return (

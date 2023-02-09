@@ -10,6 +10,37 @@ export function GetMaterials() {
 
 
   const { Left, Center, Right } = ipfabric ? ipfabric : {}
+
+
+  const GlassMaterial = useMemo(() => {
+
+    return (
+      <MeshTransmissionMaterial />)
+
+  }, [])
+  if (overlayState !== 4)
+    return undefined
+
+
+  return (
+
+    <group position={[-3, 0, 2]} scale={1.5} >
+      <primitive object={Left} scale={1} />
+      <primitive object={Center} position={[0, 0, 0]} >
+        <meshBasicMaterial metalness={1} roughness={1}></meshBasicMaterial>
+      </primitive>
+      <primitive object={Right} scale={1} />
+    </group >
+
+  )
+
+
+}
+
+
+
+/*----------------------------------------------------------------
+
   const config = useControls({
     meshPhysicalMaterial: true,
     transmissionSampler: false,
@@ -32,31 +63,4 @@ export function GetMaterials() {
     attenuationColor: '#ffffff',
     color: '#ffffff'
   })
-
-  const GlassMaterial = useMemo(() => {
-    console.log("render material")
-    return (
-      <MeshTransmissionMaterial {...config} />)
-
-  }, [config])
-  if (overlayState !== 4)
-    return undefined
-  console.log("render logo")
-
-  return (
-
-    <group position={[-3, 0, 2]} scale={1.5} >
-      <primitive object={Left} scale={1} />
-      <primitive object={Center} position={[0, 0, 0]} >
-        <meshBasicMaterial metalness={1} roughness={1}></meshBasicMaterial>
-      </primitive>
-      <primitive object={Right} scale={1} />
-    </group >
-
-  )
-
-
-}
-
-
-
+  */

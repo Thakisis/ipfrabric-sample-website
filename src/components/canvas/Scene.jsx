@@ -1,45 +1,55 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Camera } from './Camera'
 import { GetScene } from './GetScene'
-import { GetMaterials } from './GetMaterials'
-import { Stages } from './Stages'
-import { PerspectiveCamera } from '@react-three/drei'
+import { Environment, Lightformer } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
-import { Lights } from './Lights'
 export default function Scene({ children, ...props }) {
   const canvasRef = useRef()
 
+
+
   return (
     <>
-      <div > </div>
-      <Canvas {...props} style={{ position: "fixed", top: 0, left: 0, width: "100%", }} shadows>
-        <color attach="background" args={['#d0d0d0']} />
-        <PerspectiveCamera
 
-          makeDefault
-          position={[6, 2.5, 10]}
-          rotation={[-.19, .65, .1]}
+      <Canvas {...props} style={{ position: "fixed", top: 0, left: 0, width: "100%", }} shadows
+        camera={{
+          position: [6, 2.5, 10],
+          rotation: [-.19, .65, .1],
+          fov: 30,
+        }}
 
-
-          fov={25} />
-        <Camera />
-        <GetMaterials></GetMaterials>
+      >
         <Perf
-          matrixUpdate
+          overClock={true}
+        ></Perf>
 
-          overClock
-          style={{ zIndex: 99999999, }}
-          antialias
-        />
-        <Lights></Lights>
-        <GetScene />
-        <Stages></Stages>
+        <GetScene></GetScene>
+        {children}
+        <Suspense>
+          <Environment files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr" resolution={1024} blur={2103}>
+            {/** On top of the HDRI we add some rectangular and circular shapes for nicer reflections */}
+            <group rotation={[-Math.PI / 3, 0, 0]}>
+              <Lightformer intensity={4} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={[10, 10, 1]} />
+              {[2, 0, 2, 0, 2, 0, 2, 0].map((x, i) => (
+                <Lightformer key={i} form="circle" intensity={4} rotation={[Math.PI / 2, 0, 0]} position={[x, 4, i * 4]} scale={[4, 1, 1]} />
+              ))}
+              <Lightformer intensity={2} rotation-y={Math.PI / 2} position={[-5, 1, -1]} scale={[50, 2, 1]} />
+              <Lightformer intensity={2} rotation-y={-Math.PI / 2} position={[10, 1, 0]} scale={[50, 2, 1]} />
+            </group>
+          </Environment>
+        </Suspense>
       </Canvas>
     </>
 
   )
 }
+
+/*!********************************
+<GetMaterials></GetMaterials>
+        
+        <Stages></Stages>
+        */
+
 /*
 import { Perf } from 'r3f-perf'
 import { GridFloor } from './GridFloor'

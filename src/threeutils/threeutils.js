@@ -4,80 +4,98 @@ import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { ModelsList, TextureList } from '@/Store/ModelsList'
 import InstancedGroupMesh from 'three-instanced-group-mesh'
-import { Camera } from 'three'
+
 
 
 const gltfloader = new GLTFLoader()
 const dracoLoader = new DRACOLoader()
-
 const ktx2Loader = new KTX2Loader()
 
 //load models of a certain stage. Need a callback for onUpdate for preloaders and other for onComplete for store scenes and materials
-export function preloadModels({ onUpdateLoad, onCompleteLoad, gl }) {
-
+export function preloadModels({ ModelsList, onUpdateLoad, onCompleteLoad, gl }) {
   dracoLoader.setDecoderPath('/libs/draco/')
   gltfloader.setDRACOLoader(dracoLoader)
   ktx2Loader.setTranscoderPath('/libs/basis/')
   ktx2Loader.detectSupport(gl)
   gltfloader.setKTX2Loader(ktx2Loader)
+
+
   const Models = {}
   const ResultLoader = ModelsList.map((model, index) => {
 
-    const { modelName, modelFile, ...transform } = model
+    const { modelName, modelFile, type, ...transform } = model
 
     gltfloader.loadAsync(`/models/${modelFile}`,
       //progress function
       (xhr) => {
         onUpdateLoad({ modelName, index, sizeLoaded: xhr.loaded })
-
       },
     )
       .then((gltf) => {
         // activate shadows on models
 
 
-        onCompleteLoad({ scene: gltf.scene, modelName, transform })
+        onCompleteLoad({ scene: gltf.scene, modelName, transform, type })
         //onCompleteLoadModel({ modelName, scene: gltf.scene, stage, materials })
       })
 
     return
   })
 
-  return
+  return { dracoLoader, ktx2Loader, gltfloader }
 }
 
+export function prepareModels({ ModelsLoaded, scene, camera, gl }) {
+  const models = {}
+  const elements = {}
+  let textures = {}
+  Object.entries(ModelsLoaded).map(([modelName, model]) => {
+    if (model.type === "textures") {
+      textures = { ...textures, ...getTexturesScene(model) }
+      return
+    }
 
-export function preloadTextures({ onUpdateLoad, onCompleteLoad, gl }) {
+    model.scene.traverse(function (node) {
 
-  /*const ktx2Loader = new KTX2Loader()
-  ktx2Loader.setTranscoderPath('/libs/basis/')
-  ktx2Loader.detectSupport(gl)
-  const imageloader = new THREE.TextureLoader()
+      if (node.name.startsWith("Ref")) {
+        elements[modelName] = { ...elements[modelName], [node.name.substring(4)]: node }
 
-  const ResultLoader = TextureList.map((texture, index) => {
 
-    const { imageName, fileName, format, size } = texture
+      }
+      if (node.isMesh) {
 
-    const loader = format === "KTX2" ? ktx2Loader : imageloader
-    loader.loadAsync(`/textures/${fileName}`,
-      //progress function
-      (xhr) => {
-        console.log(xhr, imageName)
-        //onUpdateLoad({ modelName, index, sizeLoaded: xhr.loaded })
 
-      },
-    )
-      .then((image) => {
-        console.log(image, imageName)
+        node.castShadow = true
+        node.receiveShadow = true
+        return
+      }
+      if (node.isGroup)
+        return
+    })
 
-        //onCompleteLoad({ Object3d: group, modelName, transform, nodes })
-
-      })
-
-    return
+    applyTransform({ obj: model.scene, transform: model.transform })
+    scene.add(model.scene)
+    models[modelName] = model.scene
   })
-*/
-  return
+
+  gl.compile(scene, camera)
+  return { models, elements, textures }
+}
+
+function getTexturesScene(model) {
+  const textures = {}
+  model.scene.traverse(function (node) {
+    if (node.isMesh) {
+      node.castShadow = true
+      node.receiveShadow = true
+      const texture = node.material.map
+
+      textures[node.material.map.name] = texture
+
+    }
+
+  })
+  return textures
 }
 
 
@@ -253,18 +271,30 @@ export function createNetworkInstances({ positionArray, computersInNetwork, mode
 
 
 
-export function prepareModels(scenes, mainScene, camera, gl) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function prepareModels2(scenes, mainScene, camera, gl) {
   const models = {}
   const elements = {}
   const textures = getTexturesScene(scenes["textures"].scene)
-  console.log(textures)
-
   Object.entries(scenes).map(([modelName, model]) => {
     if (modelName === "textures")
-
       return
-
-
     model.scene.traverse(function (node) {
       if (node.isMesh) {
 
@@ -330,23 +360,4 @@ export function prepareModels(scenes, mainScene, camera, gl) {
 
 
   })*/
-}
-
-function getTexturesScene(scene) {
-  const textures = {}
-  scene.traverse(function (node) {
-    if (node.isMesh) {
-      node.castShadow = true
-      node.receiveShadow = true
-      const texture = node.material.map
-
-      textures[node.material.map.name] = texture
-
-    }
-
-  })
-  return textures
-
-
-
 }

@@ -20,7 +20,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@react-three/drei": "^9.56.4",
+    "@react-three/drei": "^9.56.12",
     "@react-three/fiber": "^8.9.0",
     "@react-three/postprocessing": "^2.7.0",
     "glsl-random": "^0.0.5",

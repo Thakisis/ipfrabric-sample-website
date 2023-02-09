@@ -1,0 +1,1 @@
+export { indexStore } from './indexStore'

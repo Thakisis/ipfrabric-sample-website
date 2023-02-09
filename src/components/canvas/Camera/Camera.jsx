@@ -1,32 +1,44 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { CameraControls, PerspectiveCamera } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useStore } from "@/Store"
+
 export const Camera = ({ props }) => {
-  const enabled = false
-  const cameraRef = useRef()
+  const [cameraState, setCameraState] = useState(false)
+  const { overlayState } = useStore(state => state.preloadState)
   const cameraControlsRef = useRef()
   const { camera } = useThree()
 
-  //const { viewport } = useThree()
-  useFrame(({ mouse, viewport }) => {
-    //const x = (mouse.x * viewport.width) / 1000
-    //const y = (mouse.y * viewport.height) / 1000
+  useEffect(() => {
+    setCameraState(false)
+  }, [setCameraState])
+  useEffect(() => {
+    if (overlayState === 4) {
 
-    //const rotation = []
+      if (cameraState) {
+        //cameraControlsRef.current?.zoom(-camera.zoom / 2, true)
+
+        //cameraControlsRef.current?.setRotation([0, 0, 0])
+      }
+      else {
+        setCameraState(true)
+      }
 
 
-  })
-
-
+    }
+  }, [cameraControlsRef, overlayState, cameraState, camera])
 
   return (
     <>
-      <CameraControls
-        makeDefault
-        enabled={true}
-      ></CameraControls>
+      {overlayState === 4 &&
+        <CameraControls
+          ref={cameraControlsRef}
+          makeDefault
+          events={false}
 
+        ></CameraControls>
+      }
 
 
     </>

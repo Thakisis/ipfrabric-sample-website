@@ -7,7 +7,7 @@ import { useControls } from 'leva'
 export default function Model() {
   const [texture1, texture2] = useTexture(["/img/logoipfabricDecal.webp", "/img/SpinnerDecal.webp"])
   const { gl, scene } = useThree()
-  //console.log(threeparems)
+
   const { ipfabric } = useStore(state => state.customScenes)
   const group = useRef()
   const { nodes, materials } = ipfabric
