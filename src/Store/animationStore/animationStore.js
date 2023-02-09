@@ -52,7 +52,7 @@ function animatetransform({ object, transform, ease, duration, tl }) {
     duration: duration,
     ease: ease.position,
     onUpdate: () => {
-      console.log(object.position)
+
     }
   })
   tl.to(object.rotation, {
@@ -63,7 +63,7 @@ function animatetransform({ object, transform, ease, duration, tl }) {
     ease: ease.rotation,
     delay: -1 * duration,
     onUpdate: () => {
-      console.log(object.rotation)
+
     }
   })
 
