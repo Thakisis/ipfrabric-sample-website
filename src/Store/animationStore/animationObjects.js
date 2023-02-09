@@ -1,0 +1,4 @@
+setAnimationObjects(store, get, set)
+{
+
+}

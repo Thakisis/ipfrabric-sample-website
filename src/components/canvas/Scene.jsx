@@ -1,13 +1,11 @@
 import { useRef, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { useStore } from '@/Store'
 import { GetScene } from './GetScene'
 import { Environment, Lightformer } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 export default function Scene({ children, ...props }) {
   const canvasRef = useRef()
-
-
-
   return (
     <>
 
@@ -24,6 +22,7 @@ export default function Scene({ children, ...props }) {
         ></Perf>
 
         <GetScene></GetScene>
+
         {children}
         <Suspense>
           <Environment files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr" resolution={1024} blur={2103}>

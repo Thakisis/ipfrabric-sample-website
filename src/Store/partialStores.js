@@ -1,5 +1,6 @@
 import * as routesStore from './routesStore'
 import { threeStore } from './threeStore'
-const partialStores = { threeStore, ...routesStore }
+import { animationStore } from './animationStore'
+const partialStores = { threeStore, ...routesStore, animationStore }
 
 export default partialStores

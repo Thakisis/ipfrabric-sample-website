@@ -82,12 +82,14 @@ export function prepareModels({ ModelsLoaded, scene, camera, gl }) {
   return { models, elements, textures }
 }
 
+// used for load textures from the gltfContaining the textures
 function getTexturesScene(model) {
   const textures = {}
   model.scene.traverse(function (node) {
     if (node.isMesh) {
       node.castShadow = true
       node.receiveShadow = true
+      //todo ear all maps
       const texture = node.material.map
 
       textures[node.material.map.name] = texture
@@ -97,6 +99,33 @@ function getTexturesScene(model) {
   })
   return textures
 }
+
+// calculate camera position on preloader to make html element fit the viewport
+export function zoomCameraToSelection(camera, size, selection) {
+  //create a box 3 to calculate dimensions
+  const box = new THREE.Box3()
+  box.expandByObject(selection)
+  const sizeBox = box.getSize(new THREE.Vector3())
+  const center = box.getCenter(new THREE.Vector3())
+  //take the min of the dimensiones x and y to make it cover the viewport
+  const maxSize = Math.min(sizeBox.x, sizeBox.y)
+  //caculate the distance for width and height 
+  const fitHeightDistance = maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360))
+  const fitWidthDistance = fitHeightDistance / camera.aspect
+
+  // apply value based on aspecratio lower or greated than 1
+  const distance = size.width > size.height ? fitWidthDistance : fitHeightDistance
+  //position camera
+  camera.position.set(center.x, center.y, distance + center.z)
+  //makeit look to center of screen
+  camera.lookAt(center.x, center.y, 0)
+
+
+
+
+}
+
+
 
 
 

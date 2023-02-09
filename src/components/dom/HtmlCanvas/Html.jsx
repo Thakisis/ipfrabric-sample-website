@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { Html, CameraControls } from "@react-three/drei"
+import { Html } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { Preloader } from './Preloader'
 import { SettingDialog } from "./SettingsDialog"
@@ -12,7 +12,7 @@ export function Studio() {
   }, [size])
   return (
     <>
-      <CameraControls />
+
       <Html transform distanceFactor={distanceFactor}
         occlude="blending"
         prepend
@@ -44,7 +44,7 @@ export function MacBook() {
   }, [size])
   return (
     <>
-      <CameraControls />
+
       <Html transform distanceFactor={distanceFactor}
         occlude="blending"
         prepend
@@ -85,15 +85,6 @@ function getHtmlSize({ size, ratio, dfBase }) {
   if (width / rWidth > height / rHeight)
     return { width, height: width * rHeight / rWidth, distanceFactor: dfBase * rWidth / width }
   return { width: height * rWidth / rHeight, height, distanceFactor: dfBase * rHeight / height }
-
-}
-
-function getHtmlSize2({ size, ratio, dfbase = .824 }) {
-  const { height, width } = size
-  const { height: rHeight, width: rWidth } = ratio
-  if (width / rWidth > height / rHeight)
-    return { width, height: width * rHeight / rWidth, distanceFactor: .824 * rWidth / width }
-  return { width: height * rWidth / rHeight, height, distanceFactor: .824 * rHeight / height }
 
 }
 

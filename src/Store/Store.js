@@ -3,8 +3,6 @@ import { mountStoreDevtool } from 'simple-zustand-devtools'
 import partialStores from './partialStores'
 import { ModelsList } from './ModelsList'
 
-
-
 export const useStore = create((set, get) => ({
   created: false,
   activeRoute: undefined,
@@ -28,6 +26,7 @@ export const useStore = create((set, get) => ({
       const routeName = setRoute(route)
       //add store property and functions if will check if already loaded
       addStore("threeStore")
+      addStore("animationStore")
       addStore(`${routeName}Store`)
     },
     initPreloadRoute() {
