@@ -62,7 +62,11 @@ export const useStore = create((set, get) => ({
 
     }
     , setOverlayState(overlayState) {
+      const { initAnimations } = get().Actions
       set(() => ({ overlayState: overlayState }))
+      if (overlayState === 4) {
+        initAnimations()
+      }
     }
   }
 

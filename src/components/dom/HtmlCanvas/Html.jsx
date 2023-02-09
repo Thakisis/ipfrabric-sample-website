@@ -54,7 +54,7 @@ export function MacBook() {
         zIndexRange={[2, 3]}
         //style={{ display: "flex", height: `${height}px`, width: `${width}px`, backgroundColor: "pink" }}
         style={{ display: "flex", height: `${height}px`, width: `${width}px`, overflow: "visible", transform: "scale(1.01)" }}
-        position={[0, 1.2, 0]} rotation={[0, 0, 0]}
+        position={[0, 1.2, .001]} rotation={[0, 0, 0]}
       >
         <div className={style.layerA}>
           {MemoPreloader}

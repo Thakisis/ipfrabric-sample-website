@@ -44,7 +44,7 @@ const MacBookM1 = () => {
         <meshStandardMaterial color='orange' opacity={0} />
       </mesh>
       <Html.MacBook />
-      {overlayState === 4 && <DebugCamera></DebugCamera>}
+
     </group >
   )
 
@@ -53,7 +53,7 @@ const MacBookM1 = () => {
 
 
 export default MacBookM1
-
+//overlayState === 4 && <DebugCamera></DebugCamera>}
 
 
 //1080p <planeGeometry args={[2.9, 1.476]} />

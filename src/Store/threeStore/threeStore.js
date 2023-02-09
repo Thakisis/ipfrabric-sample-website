@@ -94,7 +94,7 @@ export const threeStore = (set, get) => ({
       const { prepareModels, setOverlayState } = get().Actions
 
       prepareModels(ModelsLoaded)
-      setOverlayState(4)
+      setTimeout(setOverlayState(4), 1000)
     },
     prepareModels(ModelsLoaded) {
 
