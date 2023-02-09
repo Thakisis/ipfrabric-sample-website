@@ -13,8 +13,8 @@ export const animationStore = (set, get) => ({
       animatetransform({
         object: camera,
         transform: { position: [2.43, 1.38, 5.52], rotation: [-0.11, 0.629, 0.039] },
-        ease: { position: "Back.easeOut.config(5)", rotation: "Back.easeOut.config(5)" },
-        duration: 2,
+        ease: { position: "Elastic.easeOut.config(1,.5)", rotation: "Elastic.easeOut.config(1,.4)" },
+        duration: 3,
 
         tl: timeline
       })
@@ -52,7 +52,7 @@ function animatetransform({ object, transform, ease, duration, tl }) {
     duration: duration,
     ease: ease.position,
     onUpdate: () => {
-
+      console.log(object.position)
     }
   })
   tl.to(object.rotation, {
@@ -63,7 +63,7 @@ function animatetransform({ object, transform, ease, duration, tl }) {
     ease: ease.rotation,
     delay: -1 * duration,
     onUpdate: () => {
-
+      console.log(object.rotation)
     }
   })
 
