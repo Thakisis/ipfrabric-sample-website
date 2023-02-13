@@ -4,19 +4,19 @@ export const animationStore = (set, get) => ({
 
   //Elementens needed for animation
   AnimatedElements: {},
-
+  AnimStage: 0,
   storeActions: {
     initAnimations() {
       const { camera } = get().threeState
-
+      const { setAnimStage } = get().Actions
       const timeline = gsap.timeline()
       animatetransform({
         object: camera,
         transform: { position: [2.43, 1.38, 5.52], rotation: [-0.11, 0.629, 0.039] },
         ease: { position: "Elastic.easeOut.config(1,.5)", rotation: "Elastic.easeOut.config(1,.4)" },
         duration: 3,
-
-        tl: timeline
+        tl: timeline,
+        onComplete: setAnimStage
       })
       /*
       gsap.to(
@@ -33,13 +33,15 @@ export const animationStore = (set, get) => ({
     setCameraFit(object, size, camera) {
 
       zoomCameraToSelection(camera, size, object)
-
+    },
+    setAnimStage(value) {
+      set(() => ({ AnimStage: value }))
     }
 
   }
 })
 
-function animatetransform({ object, transform, ease, duration, tl }) {
+function animatetransform({ object, transform, ease, duration, tl, onComplete }) {
   const coordArraPos = ["x", "y", "z"]
   const { position, rotation } = transform
   const { position: positionEase, rotation: rotationEase } = ease
@@ -51,9 +53,7 @@ function animatetransform({ object, transform, ease, duration, tl }) {
     z: position[2],
     duration: duration,
     ease: ease.position,
-    onUpdate: () => {
-
-    }
+    onComplete: onComplete(1)
   })
   tl.to(object.rotation, {
     x: rotation[0],
@@ -72,6 +72,8 @@ function animatetransform({ object, transform, ease, duration, tl }) {
   })
 
 }
+
+
 
 
 

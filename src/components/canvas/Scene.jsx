@@ -1,5 +1,6 @@
 import { useRef, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
+import dynamic from 'next/dynamic'
 import { useStore } from '@/Store'
 import { GetScene } from './GetScene'
 import { Environment, Lightformer } from '@react-three/drei'
@@ -27,15 +28,8 @@ export default function Scene({ children, ...props }) {
         {children}
 
         <Environment files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr" resolution={1024} blur={2103}>
-          {/** On top of the HDRI we add some rectangular and circular shapes for nicer reflections */}
-          <group rotation={[-Math.PI / 3, 0, 0]}>
-            <Lightformer intensity={4} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={[10, 10, 1]} />
-            {[2, 0, 2, 0, 2, 0, 2, 0].map((x, i) => (
-              <Lightformer key={i} form="circle" intensity={4} rotation={[Math.PI / 2, 0, 0]} position={[x, 4, i * 4]} scale={[4, 1, 1]} />
-            ))}
-            <Lightformer intensity={2} rotation-y={Math.PI / 2} position={[-5, 1, -1]} scale={[50, 2, 1]} />
-            <Lightformer intensity={2} rotation-y={-Math.PI / 2} position={[10, 1, 0]} scale={[50, 2, 1]} />
-          </group>
+
+
         </Environment>
 
       </Canvas>

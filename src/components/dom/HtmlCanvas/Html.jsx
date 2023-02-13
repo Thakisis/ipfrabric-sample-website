@@ -1,15 +1,25 @@
-import { useMemo } from "react"
-import { Html } from "@react-three/drei"
+import { useEffect, useMemo, useState, useRef } from "react"
+import { useStore } from "@/Store"
+import { Html, CameraControls, Mask, useMask } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { Preloader } from './Preloader'
 import { SettingDialog } from "./SettingsDialog"
+import gsap from 'gsap'
 import style from './Html.module.css'
+import * as THREE from 'three'
+
 export function Studio() {
+
   const { size, camera } = useThree()
   const { height, width, distanceFactor } = getHtmlSize({ size, ratio: { width: 1500, height: 1030 } })
   const MemoPreloader = useMemo(() => {
     return (<Preloader viewport={size}></Preloader>)
   }, [size])
+
+
+
+
+
   return (
     <>
 
@@ -38,12 +48,21 @@ export function Studio() {
 
 export function MacBook() {
   const { size, camera } = useThree()
-  const { height, width, distanceFactor } = getHtmlSize({ size, ratio: { width: 3456, height: 2234 }, dfBase: .336 })
+  const [animState, setAnimState] = useState(0)
+
+  const { elementsPreload } = useStore((state) => ({ elementsPreload: state.ModelsElements.indexOffline }))
+  const geom = elementsPreload?.glassScreenStencil.geometry
+
+  const { height, width, distanceFactor } = getHtmlSize({ size, ratio: { width: 1349, height: 840 }, dfBase: .87 })
   const MemoPreloader = useMemo(() => {
     return (<Preloader viewport={size}></Preloader>)
   }, [size])
+  const stencil = useMask(1, false)
+  const htmlMaterial = <meshPhongMaterial color={0x00000000} blending={THREE.NoBlending} opacity={0} {...stencil} />
+
   return (
     <>
+
 
       <Html transform distanceFactor={distanceFactor}
         occlude="blending"
@@ -54,7 +73,8 @@ export function MacBook() {
         zIndexRange={[2, 3]}
         //style={{ display: "flex", height: `${height}px`, width: `${width}px`, backgroundColor: "pink" }}
         style={{ display: "flex", height: `${height}px`, width: `${width}px`, overflow: "visible", transform: "scale(1.01)" }}
-        position={[0, 1.2, .001]} rotation={[0, 0, 0]}
+        position={[0, 1.2396, -0.0095]} rotation={[0, 0, 0]}
+        material={htmlMaterial}
       >
         <div className={style.layerA}>
           {MemoPreloader}
@@ -64,6 +84,26 @@ export function MacBook() {
         </div>
 
       </Html>
+      <group position={[0, 1.2396, -0.0095]}>
+        <mesh position={[0, 0, 0]} scale={1}
+
+          geometry={geom}
+          visible={false}
+        >
+          <meshBasicMaterial color="red"></meshBasicMaterial>
+
+        </mesh>
+
+        <Mask id={1} position={[0, 0, 0]} scale={1}
+          geometry={geom}
+        >
+
+        </Mask>
+      </group>
+
+
+
+
     </>
   )
 }

@@ -1,5 +1,7 @@
 import { preloadModels, createNetworkInstances, preloadTextures, prepareModels } from '@/threeutils'
-
+import { ObjectLoader } from 'three'
+import { jsonGeometries } from './scene.model.js'
+const loaderjson = new ObjectLoader()
 export const threeStore = (set, get) => ({
 
   //Models prepared
@@ -104,16 +106,26 @@ export const threeStore = (set, get) => ({
       const { models, elements, textures } = prepareModels({ ModelsLoaded, scene, camera, gl })
 
       //store references
-      set(() => ({ Models: models, ModelsElements: elements, ModelsTextures: textures }))
+      set(({ Models, ModelsElements, ModelsTextures }) => ({ Models: { ...Models, ...models }, ModelsElements: { ...ModelsElements, ...elements }, ModelsTextures: { ...ModelsTextures, ...textures } }))
 
     },
     setThree(three) {
-      const { gl } = three
+      const { scene, camera, gl } = three
+      loaderjson.parse(jsonGeometries, function (result) {
+        const OfflineModel = { indexOffline: { scene: result, transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], type: "model" } } }
+        const { models, elements, textures } = prepareModels({ ModelsLoaded: OfflineModel, scene, camera, gl })
+        console.log(models)
+        console.log(elements)
+        set(() => ({ Models: models, ModelsElements: elements, ModelsTextures: textures }))
+      })
+
+
 
       //Component GetScene is rendered when Scene3D is created and call this function to store scene, gl for precompilation, cameraq ...
       set(() => ({ threeState: { ...three } }))
     },
   }
+  ,
 
 
 

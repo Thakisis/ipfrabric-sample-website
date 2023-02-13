@@ -73,12 +73,14 @@ export function prepareModels({ ModelsLoaded, scene, camera, gl }) {
         return
     })
 
-    applyTransform({ obj: model.scene, transform: model.transform })
+
     scene.add(model.scene)
+    gl.compile(scene, camera)
+    applyTransform({ obj: model.scene, transform: model.transform })
     models[modelName] = model.scene
   })
 
-  gl.compile(scene, camera)
+
   return { models, elements, textures }
 }
 

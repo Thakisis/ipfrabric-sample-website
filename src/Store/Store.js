@@ -30,19 +30,12 @@ export const useStore = create((set, get) => ({
       addStore(`${routeName}Store`)
     },
     initPreloadRoute() {
-
       const route = get().activeRoute
-
       const { initPreload, setOverlayState } = get().Actions
-
       setOverlayState(2)
       initPreload(ModelsList[route])
-
-
     },
     addStore(store) {
-
-
       const storesCreated = get().storesCreated
       if (storesCreated[store])
         return
@@ -52,14 +45,12 @@ export const useStore = create((set, get) => ({
 
     },
     setRoute(route) {
-
       const routeName = getRouteName(route)
       const actRoute = get().actRoute
       if (actRoute === routeName)
         return actRoute
       set(() => ({ activeRoute: routeName, overlayState: 0 }))
       return routeName
-
     }
     , setOverlayState(overlayState) {
       const { initAnimations } = get().Actions
@@ -73,11 +64,8 @@ export const useStore = create((set, get) => ({
 }))
 
 function getRouteName(route) {
-
-
   const pathName = route.substring(1, route.length)
   const routeName = pathName === "" ? "index" : pathName
-
   return routeName
 }
 
