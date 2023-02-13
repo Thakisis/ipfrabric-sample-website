@@ -48,7 +48,7 @@ export function Studio() {
 
 export function MacBook() {
   const { size, camera } = useThree()
-  const [animState, setAnimState] = useState(0)
+  const [cameracontrolState, setCameraControlsState] = useState(false)
 
   const { elementsPreload } = useStore((state) => ({ elementsPreload: state.ModelsElements.indexOffline }))
   const geom = elementsPreload?.glassScreenStencil.geometry
@@ -60,10 +60,11 @@ export function MacBook() {
   const stencil = useMask(1, false)
   const htmlMaterial = <meshPhongMaterial color={0x00000000} blending={THREE.NoBlending} opacity={0} {...stencil} />
 
+  const cameraControl = cameracontrolState ? <CameraControls></CameraControls> : undefined
   return (
     <>
 
-
+      {cameraControl}
       <Html transform distanceFactor={distanceFactor}
         occlude="blending"
         prepend
@@ -73,14 +74,14 @@ export function MacBook() {
         zIndexRange={[2, 3]}
         //style={{ display: "flex", height: `${height}px`, width: `${width}px`, backgroundColor: "pink" }}
         style={{ display: "flex", height: `${height}px`, width: `${width}px`, overflow: "visible", transform: "scale(1.01)" }}
-        position={[0, 1.2396, -0.0095]} rotation={[0, 0, 0]}
+        position={[0, 1.2396, -0.0085]} rotation={[0, 0, 0]}
         material={htmlMaterial}
       >
         <div className={style.layerA}>
           {MemoPreloader}
         </div>
         <div className={style.layerB}>
-          <SettingDialog></SettingDialog>
+          <SettingDialog setCameraControls={setCameraControlsState}></SettingDialog>
         </div>
 
       </Html>
